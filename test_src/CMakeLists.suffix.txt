@@ -1,0 +1,7 @@
+
+add_executable(
+	build-test
+		${TESTSOURCES_TEST}
+)
+
+target_link_libraries( build-test ${Boost_LIBRARIES} )

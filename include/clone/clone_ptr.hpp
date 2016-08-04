@@ -249,7 +249,7 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		clone_ptr & operator=(std::nullptr_t ///< TODOCUMENT
-		                      ) {
+		                      ) noexcept {
 			ptr = nullptr;
 			return *this;
 		}

@@ -1,4 +1,4 @@
-# clone-tools [![Build Status](https://travis-ci.org/tonyelewis/clone-tools.svg?branch=master)](https://travis-ci.org/tonyelewis/clone-tools)
+# clone-tools [![Build Status](https://travis-ci.org/tonyelewis/clone-tools.svg?branch=master)](https://travis-ci.org/tonyelewis/clone-tools) [![Documentation Status](https://readthedocs.org/projects/clone-tools/badge/?version=latest)](http://clone-tools.readthedocs.io/en/latest/?badge=latest)
 
 A small, header-only Modern C++ library to make cloning (ie copying polymorphic types) easy
 

@@ -54,4 +54,4 @@ before_script:
   - cmake "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}" ..
   - cd $TRAVIS_BUILD_DIR
 
-script: make -k 0 -C build && build/build-test
+script: make -k -C build && build/build-test

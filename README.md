@@ -2,7 +2,7 @@
 
 A small, header-only Modern C++ library to make cloning (ie copying polymorphic types) easy
 
-**User documentation**: at [Read the Docs](http://cath-tools.readthedocs.io/en/latest/ "The CATH Tools user documentation at Read the Docs")
+**User documentation**: at [Read the Docs](http://clone-tools.readthedocs.io/en/latest/ "The CATH Tools user documentation at Read the Docs")
 
 **Code**: at [GitHub](https://github.com/tonyelewis/clone-tools "The clone-tools GitHub respository")
 

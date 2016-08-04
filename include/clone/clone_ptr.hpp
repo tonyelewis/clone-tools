@@ -100,6 +100,7 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		struct lvalue_smart_pointer_ctor_tag {
+			lvalue_smart_pointer_ctor_tag() = default;
 			lvalue_smart_pointer_ctor_tag(const lvalue_smart_pointer_ctor_tag &) = delete;
 			void operator=(const lvalue_smart_pointer_ctor_tag &)                = delete;
 		};

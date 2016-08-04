@@ -3,6 +3,7 @@
 
 #include "clone/type/is_clone_ptr.hpp"
 
+#include <memory>
 #include <vector>
 
 using namespace clone_tools;

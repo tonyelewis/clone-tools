@@ -5,6 +5,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -W -Wall -Werror -Wextra -Ws
 # For Clang, use libc++ and color-diagnostics
 if ( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fcolor-diagnostics" )
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY .. )

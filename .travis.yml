@@ -3,10 +3,10 @@ sudo: required
 dist: trusty
 language: cpp
 
-# notifications:
-#   email:
-#     recipients:
-#       - a@b.com
+notifications:
+  email:
+    on_success: change
+    on_failure: always
 
 os:
   - linux

@@ -1,3 +1,4 @@
+
 sudo: required
 dist: trusty
 language: cpp
@@ -6,6 +7,10 @@ language: cpp
 #   email:
 #     recipients:
 #       - a@b.com
+
+os:
+  - linux
+  - osx
 
 compiler:
   - clang

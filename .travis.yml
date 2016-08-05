@@ -33,8 +33,8 @@ matrix:
 #      env: BUILDTYPE="ANALYZE"
 
 before install:
-	- if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" == "clang++"" ]]; then sudo apt-get update  -qq         ; fi
-	- if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" == "clang++"" ]]; then sudo apt-get install -qq libc++1 ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" == "clang++"" ]]; then sudo apt-get update  -qq         ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" == "clang++"" ]]; then sudo apt-get install -qq libc++1 ; fi
 
 install:
   # - if [ "$CXX"       == "g++"            ]; then export CXX="g++-4.9"     CC="gcc-4.9"   ; fi

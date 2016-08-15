@@ -17,15 +17,15 @@ Doesn't currently support:
 
 | Member type | Definition |
 |:--- |:--- |
-| [`pointer type` &nbsp; | `std::remove_reference<Deleter>::type::pointer` if that type exists, otherwise T*. Must satisfy NullablePointer.</sup> |
-| [`element_type` | T, the type of the object managed by this unique_ptr</sup> |
+| `pointer type` &nbsp; | `std::remove_reference<Deleter>::type::pointer` if that type exists, otherwise T*. Must satisfy NullablePointer.</sup> |
+| `element_type` | T, the type of the object managed by this unique_ptr</sup> |
 <br />
 
 
 ## Member functions
 
-|     |     |     |
-|:--- |:--- |:--- |
+| Function | Description |
+|:--- |:--- |
 | [**` (constructor)                   `** ](http://bbc.com) | constructs a new clone_tools::clone_ptr                                <br /> <sup> (public member function) </sup> |
 | [**` (destructor)                    `** ](http://bbc.com) | destructs the managed object                                           <br /> <sup> (public member function) </sup> |
 | [**` operator=                       `** ](http://bbc.com) | assigns the clone_tools::clone_ptr                                     <br /> <sup> (public member function) </sup> |
@@ -33,8 +33,8 @@ Doesn't currently support:
 
 ### Modifiers
 
-|     |     |     |
-| --- | --- | --- |
+| Function | Description |
+|:--- |:--- |
 | [**` release                         `** ](http://bbc.com) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | returns a pointer to the managed object and releases the ownership     <br /> <sup> (public member function) </sup> |
 | [**` reset                           `** ](http://bbc.com) | replaces the managed object                                            <br /> <sup> (public member function) </sup> |
 | [**` swap                            `** ](http://bbc.com) | swaps the managed objects                                              <br /> <sup> (public member function) </sup> |
@@ -42,21 +42,19 @@ Doesn't currently support:
 
 ### Observers
 
-|     |     |     |
-| --- | --- | --- |
+| Function | Description |
+|:--- |:--- |
 | [**` get                             `** ](http://bbc.com) | returns a pointer to the managed object                                <br /> <sup> (public member function) </sup> |
 [//]: # ( | [**` get_deleter           `** ](http://bbc.com) | returns the deleter that is used for destruction of the managed object <br /> <sup> (public member function) </sup> | )
 | [**` operator bool                   `** ](http://bbc.com) | checks if there is associated managed object                           <br /> <sup> (public member function) </sup> |
 | [**` operator*`**<br />**`operator-> `** ](http://bbc.com) | dereferences pointer to the managed object                             <br /> <sup> (public member function) </sup> |
-<br />
-
 
 ## Non-member functions
 
 **TODO**: make clear what (if anything is the point of each of these functions). <br />
 <sub>Namespace `clone_tools`</sub>
 
-|     |     |     |
+| Function | Description | Availability |
 | --- | --- | --- |
 | [**`make_unique                `**](http://bbc.com) | constructs a new std::unique_ptr <br /> <sup>(function template)</sup> | <sub>*`until C++14`*</sub> |
 | [**`make_clone                 `**](http://bbc.com) | constructs a new std::clone_ptr  <br /> <sup>(function template)</sup> | |

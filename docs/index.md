@@ -1,5 +1,13 @@
 # clone-tools [![Build Status](https://travis-ci.org/tonyelewis/clone-tools.svg?branch=master)](https://travis-ci.org/tonyelewis/clone-tools) [![Documentation Status](https://readthedocs.org/projects/clone-tools/badge/?version=latest)](http://clone-tools.readthedocs.io/en/latest/?badge=latest)
 
+**TODOCUMENT** :
+
+ * document all headers
+ * all gubbins
+ * examples on all pages
+ * motivation and simple usage
+ * comparisons with other clone_ptrs
+
 A small, header-only Modern C++ library to make cloning (ie copying polymorphic types) easy
 
 **User documentation**: at [Read the Docs](http://clone-tools.readthedocs.io/en/latest/ "The CATH Tools user documentation at Read the Docs")

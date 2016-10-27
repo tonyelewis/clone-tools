@@ -11,7 +11,7 @@ anas asdfahlkbasdl lhasdhf
 and another
 -----------
 
- there is<sup>really</sup> <sub>only</sub> one way <sup><sub>that I</sub></sup> 
+ there is<sup>really</sup> <sub>only</sub> one way <sup><sub>that I</sub></sup> <sub><sup>know of</sup></sub> 
 
 <!-- <sub><sup>this is a way to make things small</sup></sub> -->
 

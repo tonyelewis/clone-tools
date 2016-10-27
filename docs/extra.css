@@ -1,0 +1,109 @@
+/* Headings and sups below them */
+
+h1 h2 {
+	margin           : 12px 0;
+}
+
+h3 {
+	color            : #404040;
+}
+
+p.namespace-subhead {
+	height           : 20px;
+	margin           : 0px;
+}
+
+sup.namespace-subhead {
+	top              : -20px;
+}
+
+sup {
+	color            : grey;
+}
+
+
+/* General text */
+p {
+	font-size        : 103%; /* The heart of Manchester */
+	margin-bottom    : 7px;
+}
+
+ul {
+	margin-bottom    : 7px !important;
+}
+
+
+/* Tables */
+
+table {
+	border-width     : 0     !important;
+}
+
+td {
+	border-width     : 1px 0 !important;
+	padding          : 2px   !important;
+}
+
+th {
+	border-width     : 1px 0 !important;
+	padding          : 0     !important;
+}
+
+tr:nth-child(2n-1) td {
+	background-color : transparent !important;
+}
+
+table h1, table h2, table h3 {
+	margin           : 13px 0;
+}
+
+td > sup {
+	color            : green;
+}
+
+
+
+
+
+/* Code */
+
+/* Default */
+code {
+	background       : rgba(0, 0, 0, 0.02);
+	color            : #444;
+	font-size        : 90%;
+}
+
+/* For entries like "(until C++14)" */
+td > sup > em > code {
+	background-color : transparent;
+	border-width     : 0;
+	color            : green;
+	font-family      : "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif;
+	font-style       : normal;
+}
+
+/* Code in links */
+a code {
+	background-color : transparent;
+	border-width     : 0;
+	color            : #2980B9;
+	padding          : 0;
+}
+
+/* Code in main headers */
+h1 > code {
+	background       : transparent;
+	border-width     : 0;
+	color            : #404040;
+	font-size        : 100%;
+	padding          : 0;
+}
+
+
+/* Code snippets */
+
+code.cpp {
+	border-color     : silver;
+	font-size        : 90%;
+}

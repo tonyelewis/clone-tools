@@ -1,0 +1,12 @@
+site_name: clone-tools
+theme: readthedocs
+
+extra_css: [extra.css]
+
+pages:
+- Home      : index.md
+- About     : about.md
+- clone_ptr : clone_ptr.md
+
+# markdown_extensions:
+#   - fenced_code

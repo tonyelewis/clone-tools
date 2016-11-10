@@ -16,6 +16,11 @@ A small, header-only Modern C++ library to make cloning (ie copying polymorphic 
 
 **Build and Execution of Tests**: at [Travis-CI](https://travis-ci.org/tonyelewis/clone-tools "The clone-tools Travis-CI builds")
 
+Features
+--------
+
+ * Overhead free (ie modern compilers should compile `clone_ptr` to the same as `unique_ptr` for equivalent operations)
+
 How to use
 ----------
 

@@ -1,7 +1,7 @@
 site_name: clone-tools
 theme: readthedocs
 
-extra_css: [extra.css]
+extra_css: [mkdocs_extra.css]
 
 pages:
 - Home      : index.md

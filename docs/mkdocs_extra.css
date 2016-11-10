@@ -107,3 +107,26 @@ code.cpp {
 	border-color     : silver;
 	font-size        : 90%;
 }
+
+
+/* */
+
+div.wy-nav-content {
+	padding          : 10px 35px;
+}
+
+ul.wy-breadcrumbs {
+	margin           : 0 !important;
+}
+
+div[role="navigation"] > hr::before {
+	color            : grey;
+	content          : "Hat-tip: docs draw content and style from cppreference.com; please use and support that excellent site.";
+	font-size        : 75%;
+	vertical-align   : super;
+}
+
+div[role="navigation"] > hr {
+	margin           : 2px 0 25px 0;
+	text-align       : center;
+}

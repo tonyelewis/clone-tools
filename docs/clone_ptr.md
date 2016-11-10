@@ -1,6 +1,5 @@
 [//]: # (TODO: Can these notes be put into a header?)
 [//]: # (<sup>**Note**: this library requires C++11 or higher</sup> <br />)
-[//]: # (<sup>**Note**: this documentation draws content and style from the excellent [cppreference.com](http://cppreference.com); please use and support that site. </sup>)
 
 # `clone_tools::clone_ptr<T>` 
 
@@ -61,10 +60,12 @@ Doesn't currently support:
 
 |     |     |     |
 | --- | --- | --- |
+| <h3> Observers </h3> |
 | [**`is_clone_v<>`**](http://bbc.com) | whether the type is a clone gubbins thing<br /> <sup>(variable template)</sup> | <sup>*`since C++14`*</sup> |
 | [**`is_clone_v<>`**](http://bbc.com) | whether the type is a clone gubbins thing<br /> <sup>(variable template)</sup> | <sup>*`since C++14`*</sup> |
-
-
+| <h3> Observers </h3> |
+| [**`is_unique_ptr_v<>`**](http://bbc.com) | whether the type is a clone gubbins thing<br /> <sup>(variable template)</sup> | <sup>*`since C++14`*</sup> |
+| [**`is_unique_ptr_after_decay_v<>`**](http://bbc.com) | whether the type is a clone gubbins thing<br /> <sup>(variable template)</sup> | <sup>*`since C++14`*</sup> |
 
 ## Example
 

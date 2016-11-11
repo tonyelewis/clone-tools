@@ -4,10 +4,12 @@
 #ifndef CLONE_CLONE_PTR_H
 #define CLONE_CLONE_PTR_H
 
-#include "clone/detail/is_cloneable.hpp"
+#include "clone/detail/is_member_cloneable_base.hpp"
 #include "clone/detail/make_unique.hpp"
+#include "clone/take_clone.hpp"
 #include "clone/type/is_clone_ptr.hpp"
 #include "clone/type/is_unique_ptr.hpp"
+#include "detail/not_the_same_thing.hpp"
 
 #include <cassert>
 #include <memory>
@@ -19,13 +21,6 @@
 #endif
 
 namespace clone_tools {
-
-	/// \brief TODOCUMENT
-	template <typename T>
-	auto take_clone(const T &arg_type) -> decltype( arg_type.clone() ) {
-		return arg_type.clone();
-	}
-
 	namespace detail {
 
 		/// \brief TODOCUMENT
@@ -42,45 +37,28 @@ namespace clone_tools {
 		};
 
 		/// \brief TODOCUMENT
-		struct not_the_same_thing_impl final {
-			/// \brief TODOCUMENT
-			template <typename LHS, typename RHS>
-			bool operator()(const LHS &/*arg_lhs*/, ///< TODOCUMENT
-			                const RHS &/*arg_rhs*/  ///< TODOCUMENT
-			                ) const {
-				return true;
-			}
-
-			/// \brief TODOCUMENT
-			template <typename LHS>
-			bool operator()(const LHS &arg_lhs, ///< TODOCUMENT
-			                const LHS &arg_rhs  ///< TODOCUMENT
-			                ) const {
-				
-				return ( &arg_lhs != &arg_rhs );
-			}
-		};
-
-		/// \brief TODOCUMENT
-		constexpr not_the_same_thing_impl not_the_same_thing{};
-
-		/// \brief TODOCUMENT
 		template <typename T>
 		using default_clone_element_t = unique_ptr_element_t< decltype( take_clone( std::declval<const T &>() ) ) >;
+
+		/// \brief TODOCUMENT
+		template <typename T, typename U>
+		using conditional_take_clone_pointee_t = conditional_t< std::is_same< T, clone_to_default_tag >::value,
+		                                                        unique_ptr_element_t< member_clone_type_t< U > >,
+		                                                        T>;
 
 	}
 
 	/// \brief A light wrapper for std::unique_ptr that provides a copy ctor and assignment operator
 	///        by using the fact that the template class provides a sensible clone method.
 	///
-	/// is_cloneable is used to check (at compile time) that the template class does indeed
+	/// is_member_cloneable_base is used to check (at compile time) that the template class does indeed
 	/// have a sensible clone method.
 	///
 	/// \todo Consider adding handling of deleter types
 	template <typename T>
 	class clone_ptr final {
 	private:
-		static_assert( is_cloneable<T>::value,
+		static_assert( is_member_cloneable_base<T>::value,
 			"clone_ptr<T> can only be used for cloneable T" );
 
 		/// \brief TODOCUMENT
@@ -100,14 +78,15 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		struct lvalue_smart_pointer_ctor_tag {
-			lvalue_smart_pointer_ctor_tag() = default;
 			lvalue_smart_pointer_ctor_tag(const lvalue_smart_pointer_ctor_tag &) = delete;
 			void operator=(const lvalue_smart_pointer_ctor_tag &)                = delete;
 		};
 
 		/// \brief TODOCUMENT
 		///
-		/// \todo Create and deploy is_cloneable_v<U>
+		/// \todo Create and deploy trait for whether whether take_clone() of U has return type convertible to unique_ptr<T>
+		///
+		/// \todo Is there any point having enable_if on the private impl ctor?
 		template <typename U,
 		          typename V = detail::enable_if_t< ( is_clone_ptr<U>::value || is_unique_ptr<U>::value )
 		                                            && is_convertible_from<typename U::element_type>::value
@@ -126,7 +105,7 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		///
-		/// \todo Create and deploy is_cloneable_v<U>
+		/// \todo Create and deploy is_member_cloneable_base_v<U>
 		template <typename U,
 		          typename V = detail::enable_if_t< ( is_clone_ptr<U>::value || is_unique_ptr<U>::value )
 		                                            && is_convertible_from<typename U::element_type>::value
@@ -228,7 +207,7 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		///
-		/// \todo Create and deploy is_cloneable_v<U>
+		/// \todo Create and deploy trait for whether whether take_clone() of U has return type convertible to unique_ptr<T>
 		template <typename U,
 		          typename V = detail::enable_if_t< is_convertible_from<U>::value > >
 		explicit clone_ptr(const std::unique_ptr<U> &arg_ptr ///< The pointer from which this clone_ptr should be constructed
@@ -306,7 +285,7 @@ namespace clone_tools {
 
 		/// \brief TODOCUMENT
 		///
-		/// \todo Create and deploy is_cloneable_v<U>
+		/// \todo Create and deploy trait for whether whether take_clone() of U has return type convertible to unique_ptr<T>
 		template<typename U,
 		         typename V = detail::enable_if_t< is_convertible_from<U>::value > >
 		clone_ptr & operator=(const std::unique_ptr<U> &arg_ptr ///< TODOCUMENT
@@ -386,36 +365,19 @@ namespace clone_tools {
 		return arg_clone_ptr_a.get() < arg_clone_ptr_b.get();
 	}
 
-	namespace detail {
-
-		/// \brief TODOCUMENT
-		struct clone_to_default_tag final {
-			clone_to_default_tag()                             = delete;
-			~clone_to_default_tag()                            = delete;
-			clone_to_default_tag(const clone_to_default_tag &) = delete;
-			void operator=(const clone_to_default_tag &)       = delete;
-		};
-
-		/// \brief TODOCUMENT
-		template <typename T, typename U>
-		using conditional_clone_default_t = detail::conditional_t< std::is_same<T, detail::clone_to_default_tag>::value, default_clone_element_t<U>, T>;
-	}
-
-
-
 	/// @{
 
 	/// \brief TODOCUMENT
 	///
 	/// \relates clone_ptr
 	template <typename T,
-	          typename U = T,
+	          typename U = detail::unique_ptr_element_t< member_clone_type_t< T > >,
 	          typename V = detail::enable_if_t< detail::is_clone_convertible<T, U>::value >,
 	          typename... Args>
 	clone_ptr<U> make_clone(Args&&... args
 	                        ) {
 		return clone_ptr<U>{
-			detail::make_unique<T>( std::forward<Args>( args ) ... )
+			detail::make_unique_wrapper<T>( std::forward<Args>( args ) ... )
 		};
 	}
 
@@ -424,9 +386,12 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<R> make_clone_of_uptr(const std::unique_ptr<U> &arg_unique_ptr ///< TODOCUMENT
 	                                ) {
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that make_clone_of_uptr() wants to return must be cloneable" );
+
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
 
@@ -438,9 +403,12 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<R> make_clone_of_uptr(std::unique_ptr<U> &&arg_unique_ptr ///< TODOCUMENT
 	                                ) {
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that make_clone_of_uptr() wants to return must be cloneable" );
+
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
 
@@ -452,9 +420,12 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<const R> make_const_clone_of_uptr(const std::unique_ptr<U> &arg_unique_ptr ///< TODOCUMENT
 	                                            ) {
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that make_const_clone_of_uptr() wants to return must be cloneable" );
+
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
 
@@ -466,9 +437,12 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<const R> make_const_clone_of_uptr(std::unique_ptr<U> &&arg_unique_ptr ///< TODOCUMENT
 	                                            ) {
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that make_const_clone_of_uptr() wants to return must be cloneable" );
+
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
 
@@ -480,11 +454,11 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<R> clone_and_make_clone(const U &arg_object ///< TODOCUMENT
 	                                  ) {
-		static_assert( is_cloneable<U>::value,
-			"Type passed to clone_and_make_clone() must be cloneable" );
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that clone_and_make_clone() wants to return must be cloneable" );
 
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
@@ -497,11 +471,11 @@ namespace clone_tools {
 	/// \relates clone_ptr
 	template <typename T = detail::clone_to_default_tag,
 	          typename U,
-	          typename R = detail::conditional_clone_default_t<T, U> >
+	          typename R = detail::conditional_take_clone_pointee_t<T, U> >
 	clone_ptr<const R> clone_and_make_const_clone(const U &arg_object ///< TODOCUMENT
 	                                              ) {
-		static_assert( is_cloneable<U>::value,
-			"Type passed to clone_and_make_const_clone() must be cloneable" );
+		static_assert( is_member_cloneable_base<R>::value,
+			"The type in the clone_ptr that clone_and_make_clone() wants to return must be cloneable" );
 
 		static_assert( detail::is_clone_convertible<U, R>::value,
 			"Cannot convert between pointer types involved in making clone_ptr" );
@@ -511,6 +485,6 @@ namespace clone_tools {
 
 	/// @}
 
-} // namespace clone
+} // namespace clone_tools
 
 #endif

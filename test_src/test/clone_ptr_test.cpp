@@ -4,97 +4,23 @@
 #include "catch/catch.hpp"
 
 #include "clone/clone_ptr.hpp"
+#include "clone/detail/not_the_same_thing.hpp"
 #include "clone/type/is_clone_ptr.hpp"
 #include "clone/type/is_unique_ptr.hpp"
 #include "clone/utility.hpp"
+#include "test/support/example_cloner.hpp"
 
 #include <atomic>
-
-namespace clone_tools { namespace test { } }
 
 using namespace clone_tools::test;
 using namespace clone_tools;
 
-using clone_tools::detail::make_unique;
+using clone_tools::detail::make_unique_wrapper;
 using std::is_same;
 using std::unique_ptr;
 
 namespace clone_tools {
 	namespace test {
-
-		/// \brief TODOCUMENT
-		///
-		/// The value is arbitrary and is just used to distinguish between methods from concrete1 / concrete2
-		constexpr size_t CONCRETE1_METHOD_RESULT = 3984756;
-
-		/// \brief TODOCUMENT
-		///
-		/// The value is arbitrary and is just used to distinguish between methods from concrete1 / concrete2
-		constexpr size_t CONCRETE2_METHOD_RESULT =     836;
-
-		class clone_ptr_test_abstract_base {
-		private:
-			/// \brief A counter of the number of clones in the history/ancestry of this clone_ptr_test_abstract_base
-			///
-			/// This is:
-			///  * mutable so that it can be incremented in the const source of copy-constructs/clones
-			///  * atomic so that the const members are thread-safe
-			mutable std::atomic<size_t> clone_ctr { 0 };
-
-			virtual unique_ptr<clone_ptr_test_abstract_base> do_clone() const = 0;
-
-		public:
-			clone_ptr_test_abstract_base() = default;
-			clone_ptr_test_abstract_base(const clone_ptr_test_abstract_base &arg_base
-			                             ) : clone_ctr ( ++arg_base.clone_ctr ) {
-			}
-			unique_ptr<clone_ptr_test_abstract_base> clone() const {
-				return check_uptr_clone_against_this( do_clone(), *this );
-			}
-			virtual ~clone_ptr_test_abstract_base() noexcept = default;
-
-			virtual size_t method() const = 0;
-			size_t clone_count() const {
-				return clone_ctr;
-			}
-		};
-
-
-		class clone_ptr_test_concrete1 : public clone_ptr_test_abstract_base {
-		private:
-			virtual unique_ptr<clone_ptr_test_abstract_base> do_clone() const override final {
-				return { make_uptr_clone( *this ) };
-			}
-
-		public:
-			virtual ~clone_ptr_test_concrete1() noexcept override = default;
-			virtual size_t method() const override final {
-				return CONCRETE1_METHOD_RESULT;
-			}
-		};
-
-
-		class clone_ptr_test_concrete2 : public clone_ptr_test_abstract_base {
-		private:
-			virtual unique_ptr<clone_ptr_test_abstract_base> do_clone() const override final {
-				return { make_uptr_clone( *this ) };
-			}
-
-		public:
-			virtual ~clone_ptr_test_concrete2() noexcept override = default;
-			virtual size_t method() const override final {
-				return CONCRETE2_METHOD_RESULT;
-			}
-		};
-
-		bool operator==(const clone_ptr_test_abstract_base &arg_obj1, ///< TODOCUMENT
-		                const clone_ptr_test_abstract_base &arg_obj2  ///< TODOCUMENT
-		                ) {
-			return
-				( typeid( arg_obj1 ) == typeid( arg_obj2 ) )
-				&&
-				( arg_obj1.method()  == arg_obj2.method()  );
-		}
 
 		/// \brief Check that a clone_ptr and smart pointer of same element_type (modulo constness) are both null
 		template <typename T, typename U>
@@ -116,16 +42,16 @@ namespace clone_tools {
 		/// \brief TODOCUMENT
 		template <typename T>
 		void check_moved(const T                                    &arg_clone_ptr,     ///< TODOCUMENT
-		                 const clone_ptr_test_abstract_base * const  arg_source_raw_ptr ///< TODOCUMENT
+		                 const example_cloner_abstract_base * const  arg_source_raw_ptr ///< TODOCUMENT
 		                 ) {
 			static_assert(
 				is_clone_ptr<T>::value || is_unique_ptr<T>::value,
 				"check_moved() can ony be called with either a clone_ptr type or a unique_ptr type"
 			);
 			using non_const_T_elmnt = typename std::remove_const< typename T::element_type >::type;
-			static_assert( is_same< non_const_T_elmnt, clone_ptr_test_abstract_base>::value,
+			static_assert( is_same< non_const_T_elmnt, example_cloner_abstract_base>::value,
 				"check_moved() can only be called with a smart pointer type with"
-				" element_type clone_ptr_test_abstract_base (or const clone_ptr_test_abstract_base)"
+				" element_type example_cloner_abstract_base (or const example_cloner_abstract_base)"
 			);
 
 			REQUIRE( arg_clone_ptr                                            );
@@ -136,7 +62,7 @@ namespace clone_tools {
 		/// \brief TODOCUMENT
 		template <typename T, typename U>
 		void check_cloned_from(const T                                    &arg_clone_ptr,      ///< TODOCUMENT
-		                       const clone_ptr_test_abstract_base * const  arg_source_raw_ptr, ///< TODOCUMENT
+		                       const example_cloner_abstract_base * const  arg_source_raw_ptr, ///< TODOCUMENT
 		                       const U                                    &arg_source_ptr      ///< TODOCUMENT
 		                       ) {
 			constexpr bool is_clone_and_unique = is_clone_ptr <T>::value && is_unique_ptr<U>::value;
@@ -152,13 +78,13 @@ namespace clone_tools {
 
 			using non_const_T_elmnt = typename std::remove_const< typename T::element_type >::type;
 			using non_const_U_elmnt = typename std::remove_const< typename U::element_type >::type;
-			static_assert( is_same< non_const_T_elmnt, clone_ptr_test_abstract_base>::value,
+			static_assert( is_same< non_const_T_elmnt, example_cloner_abstract_base>::value,
 				"check_cloned_from() can only be called with a first smart pointer type with"
-				" element_type clone_ptr_test_abstract_base (or const clone_ptr_test_abstract_base)"
+				" element_type example_cloner_abstract_base (or const example_cloner_abstract_base)"
 			);
-			static_assert( is_same< non_const_U_elmnt, clone_ptr_test_abstract_base>::value,
+			static_assert( is_same< non_const_U_elmnt, example_cloner_abstract_base>::value,
 				"check_cloned_from() can only be called by a second smart pointer type with"
-				" element_type clone_ptr_test_abstract_base (or const clone_ptr_test_abstract_base)"
+				" element_type example_cloner_abstract_base (or const example_cloner_abstract_base)"
 			);
 
 			REQUIRE( arg_clone_ptr                                             );
@@ -174,48 +100,78 @@ namespace clone_tools {
 	}
 }
 
-static_assert(   is_cloneable<      clone_ptr_test_concrete1    >::value, "is_cloneable should allow a  concrete       type with sensible clone method" );
-static_assert(   is_cloneable<      clone_ptr_test_concrete2    >::value, "is_cloneable should allow a  concrete       type with sensible clone method" );
-static_assert(   is_cloneable<      clone_ptr_test_abstract_base>::value, "is_cloneable should allow an abstract       type with sensible clone method" );
+namespace clone_tools {
+	namespace test {
 
-static_assert(   is_cloneable<const clone_ptr_test_concrete1    >::value, "is_cloneable should allow a  concrete, const type with sensible clone method" );
-static_assert(   is_cloneable<const clone_ptr_test_concrete2    >::value, "is_cloneable should allow a  concrete, const type with sensible clone method" );
-static_assert(   is_cloneable<const clone_ptr_test_abstract_base>::value, "is_cloneable should allow an abstract, const type with sensible clone method" );
+		struct has_non_const_clone final {
+			unique_ptr<has_non_const_clone> clone();
+		};
+	}
+}
 
-static_assert( ! is_cloneable<      int                         >::value, "is_cloneable shouldn't allow       int (because it doesn't have a clone method)" );
-static_assert( ! is_cloneable<const int                         >::value, "is_cloneable shouldn't allow const int (because it doesn't have a clone method)" );
+static_assert( sizeof( unique_ptr < example_cloner_abstract_base > ) == sizeof( clone_ptr  < example_cloner_abstract_base > ), "Size of clone_ptr should be the same as the size of unique_ptr" );
 
+static_assert( ! is_member_cloneable_base<      example_cloner_concrete1                                                    >::value, "is_member_cloneable_base should reject a        concrete type with a clone_type that cant convert to a unique_ptr of the type" );
+static_assert( ! is_member_cloneable_base<      example_cloner_concrete2                                                    >::value, "is_member_cloneable_base should reject a        concrete type with a clone_type that cant convert to a unique_ptr of the type" );
+static_assert(   is_member_cloneable_base<      example_cloner_abstract_base                                                >::value, "is_member_cloneable_base should allow  an       abstract type with sensible clone method"                                      );
+static_assert(   is_member_cloneable_base<      example_cloner_abstract_base_base                                           >::value, "is_member_cloneable_base should allow  an       abstract type with sensible clone method"                                      );
 
+static_assert(   member_clones_to        <      example_cloner_concrete1,          unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <      example_cloner_concrete2,          unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <      example_cloner_abstract_base,      unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <      example_cloner_abstract_base_base, unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+
+static_assert( ! is_member_cloneable_base<const example_cloner_concrete1                                                    >::value, "is_member_cloneable_base should reject a  const concrete type with a clone_type that cant convert to a unique_ptr of the type" );
+static_assert( ! is_member_cloneable_base<const example_cloner_concrete2                                                    >::value, "is_member_cloneable_base should reject a  const concrete type with a clone_type that cant convert to a unique_ptr of the type" );
+static_assert(   is_member_cloneable_base<const example_cloner_abstract_base                                                >::value, "is_member_cloneable_base should allow  a  const abstract type with sensible clone method"                                      );
+static_assert(   is_member_cloneable_base<const example_cloner_abstract_base_base                                           >::value, "is_member_cloneable_base should allow  a  const abstract type with sensible clone method"                                      );
+
+static_assert(   member_clones_to        <const example_cloner_concrete1,          unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <const example_cloner_concrete2,          unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <const example_cloner_abstract_base,      unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+static_assert(   member_clones_to        <const example_cloner_abstract_base_base, unique_ptr<example_cloner_abstract_base> >::value, "member_clones_to should allow this" );
+
+static_assert( ! is_member_cloneable_base<      int                                                                         >::value, "is_member_cloneable_base shouldn't allow       int (because it doesn't have a clone method)" );
+static_assert( ! is_member_cloneable_base<const int                                                                         >::value, "is_member_cloneable_base shouldn't allow const int (because it doesn't have a clone method)" );
+
+static_assert( ! is_member_cloneable_base<const has_non_const_clone                                                         >::value, "is_member_cloneable_base shouldn't allow const has_non_const_clone (because it doesn't have a const     clone method)" );
+static_assert(   is_member_cloneable_base<      has_non_const_clone                                                         >::value, "is_member_cloneable_base should    allow       has_non_const_clone (because it does    have a non-const clone method)" );
+static_assert(   member_clones_to        <      has_non_const_clone,               unique_ptr<has_non_const_clone>          >::value, "member_clones_to should say yes for has_non_const_clone and unique_ptr<member_clones_to>)"                     );
+
+constexpr       int  test_constexpr_val_a = 1;
+constexpr       int  test_constexpr_val_b = 1;
+constexpr const int &test_constexpr_val_c = test_constexpr_val_a;
+
+static_assert(   clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_b ), "not_the_same_thing() should return true for different variables"                         );
+static_assert( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_a ), "not_the_same_thing() should return false for the same variable"                          );
+static_assert( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_c ), "not_the_same_thing() should return false for a variable and a reference to the variable" );
 
 // TEST_SUITE(test_structures_test)
 
 TEST_CASE( "concrete_methods_return_different_values" ) {
-	clone_ptr_test_concrete1 the_clone_ptr_test_concrete1;
-	clone_ptr_test_concrete2 the_clone_ptr_test_concrete2;
-	REQUIRE( the_clone_ptr_test_concrete1.method() != the_clone_ptr_test_concrete2.method() );
+	example_cloner_concrete1 the_example_cloner_concrete1;
+	example_cloner_concrete2 the_example_cloner_concrete2;
+	REQUIRE( the_example_cloner_concrete1.method() != the_example_cloner_concrete2.method() );
 }
 
 // TEST_SUITE_END()
 
-
-
-
 TEST_CASE( "make_clone_builds" ) {
-	const auto ptr = make_clone<clone_ptr_test_concrete1>();
+	const auto ptr = make_clone<example_cloner_concrete1>();
 	REQUIRE( ptr                                    );
 	REQUIRE( ptr.get() !=     nullptr                 );
 	REQUIRE( ptr->method() == CONCRETE1_METHOD_RESULT );
 }
 
 TEST_CASE( "dereferences" ) {
-	const auto ptr = make_clone<clone_ptr_test_concrete1>();
-	clone_ptr_test_abstract_base &ref = *ptr;
+	const auto ptr = make_clone<example_cloner_concrete1>();
+	example_cloner_abstract_base &ref = *ptr;
 	REQUIRE( ref.method() == CONCRETE1_METHOD_RESULT );
 }
 
 TEST_CASE( "member_of_pointer_operator" ) {
-	const auto ptr1 = make_clone<clone_ptr_test_concrete1>();
-	const auto ptr2 = make_clone<clone_ptr_test_concrete2>();
+	const auto ptr1 = make_clone<example_cloner_concrete1>();
+	const auto ptr2 = make_clone<example_cloner_concrete2>();
 	REQUIRE( ptr1->method() == CONCRETE1_METHOD_RESULT );
 }
 
@@ -227,7 +183,7 @@ TEST_CASE( "member_of_pointer_operator" ) {
 // TEST_SUITE(constructor)
 
 TEST_CASE( "default_constructs" ) {
-	const auto const_ptr = clone_ptr<const clone_ptr_test_abstract_base>{};
+	const auto const_ptr = clone_ptr<const example_cloner_abstract_base>{};
 
 	REQUIRE( ! const_ptr );
 	REQUIRE( const_ptr.get() == nullptr );
@@ -235,99 +191,99 @@ TEST_CASE( "default_constructs" ) {
 
 
 TEST_CASE( "ctor_from_rvalue_null_clone_ptr_makes_null" ) {
-	auto       source_ptr = clone_ptr<clone_ptr_test_abstract_base>{};
-	const auto ptr        = clone_ptr<clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	auto       source_ptr = clone_ptr<example_cloner_abstract_base>{};
+	const auto ptr        = clone_ptr<example_cloner_abstract_base>{ std::move( source_ptr ) };
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "ctor_from_lvalue_null_clone_ptr_makes_null" ) {
-	const auto source_ptr = clone_ptr<clone_ptr_test_abstract_base>{};
-	const auto ptr        = clone_ptr<clone_ptr_test_abstract_base>{ source_ptr };
+	const auto source_ptr = clone_ptr<example_cloner_abstract_base>{};
+	const auto ptr        = clone_ptr<example_cloner_abstract_base>{ source_ptr };
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "ctor_from_rvalue_null_unique_ptr_makes_null" ) {
-	auto       source_ptr = unique_ptr<clone_ptr_test_abstract_base>{};
-	const auto ptr        = clone_ptr<clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	auto       source_ptr = unique_ptr<example_cloner_abstract_base>{};
+	const auto ptr        = clone_ptr<example_cloner_abstract_base>{ std::move( source_ptr ) };
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "ctor_from_lvalue_null_uptr_makes_null" ) {
-	const auto source_ptr = unique_ptr<clone_ptr_test_abstract_base>{};
-	const auto ptr        = clone_ptr<clone_ptr_test_abstract_base>{ source_ptr };
+	const auto source_ptr = unique_ptr<example_cloner_abstract_base>{};
+	const auto ptr        = clone_ptr<example_cloner_abstract_base>{ source_ptr };
 	check_both_null( ptr, source_ptr );
 }
 
 
 
 TEST_CASE( "ctor_from_rvalue_clone_ptr_of_convertible_type_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1>();
+	auto               source_ptr = make_clone<example_cloner_concrete1>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	const auto         ptr        = clone_ptr<example_cloner_abstract_base>{ std::move( source_ptr ) };
 
 	check_moved( ptr, raw_ptr );
 }
 
 TEST_CASE( "ctor_from_lvalue_to_unique_ptr_clones" ) {
-	const auto         source_ptr = unique_ptr<clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	const auto         source_ptr = unique_ptr<example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<clone_ptr_test_abstract_base>{ source_ptr };
+	const auto         ptr        = clone_ptr<example_cloner_abstract_base>{ source_ptr };
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "ctor_from_rvalue_to_unique_ptr_moves" ) {
-	auto               source_ptr = unique_ptr<clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	auto               source_ptr = unique_ptr<example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	const auto         ptr        = clone_ptr<example_cloner_abstract_base>{ std::move( source_ptr ) };
 
 	check_moved( ptr, raw_ptr );
 }
 
 TEST_CASE( "ctor_from_lvalue_to_unique_ptr_to_const_clones" ) {
-	const auto         source_ptr  = unique_ptr<const clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	const auto         source_ptr  = unique_ptr<const example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr     = source_ptr.get();
-	const auto         ptr         = clone_ptr<const clone_ptr_test_abstract_base>{ source_ptr };
+	const auto         ptr         = clone_ptr<const example_cloner_abstract_base>{ source_ptr };
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "ctor_from_rvalue_to_unique_ptr_to_const_moves" ) {
-	auto               source_ptr = unique_ptr<const clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	auto               source_ptr = unique_ptr<const example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<const clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	const auto         ptr        = clone_ptr<const example_cloner_abstract_base>{ std::move( source_ptr ) };
 
 	check_moved( ptr, raw_ptr );
 }
 
 TEST_CASE( "copy_ctor_from_lvalue_clones" ) {
-	const auto         source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	const auto         source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<clone_ptr_test_abstract_base>{ source_ptr };
+	const auto         ptr        = clone_ptr<example_cloner_abstract_base>{ source_ptr };
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "copy_ctor_from_rvalue_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	auto               source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	const auto         ptr        = clone_ptr<example_cloner_abstract_base>{ std::move( source_ptr ) };
 
 	check_moved( ptr, raw_ptr );
 }
 
 TEST_CASE( "copy_ctor_from_lvalue_to_const_clones" ) {
-	const auto         source_ptr = make_clone<const clone_ptr_test_concrete1, const clone_ptr_test_abstract_base>();
+	const auto         source_ptr = make_clone<const example_cloner_concrete1, const example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<const clone_ptr_test_abstract_base>{ source_ptr };
+	const auto         ptr        = clone_ptr<const example_cloner_abstract_base>{ source_ptr };
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "copy_ctor_from_rvalue_to_const_moves" ) {
-	auto               source_ptr = make_clone<const clone_ptr_test_concrete1, const clone_ptr_test_abstract_base>();
+	auto               source_ptr = make_clone<const example_cloner_concrete1, const example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = clone_ptr<const clone_ptr_test_abstract_base>{ std::move( source_ptr ) };
+	const auto         ptr        = clone_ptr<const example_cloner_abstract_base>{ std::move( source_ptr ) };
 
 	check_moved( ptr, raw_ptr );
 }
@@ -340,38 +296,38 @@ TEST_CASE( "copy_ctor_from_rvalue_to_const_moves" ) {
 // TEST_SUITE(assignment)
 
 TEST_CASE( "assignment_from_rvalue_null_clone_ptr_makes_null" ) {
-	auto       source_ptr = clone_ptr<clone_ptr_test_abstract_base>{};
-	auto       ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	auto       source_ptr = clone_ptr<example_cloner_abstract_base>{};
+	auto       ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = std::move( source_ptr );
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "assignment_from_lvalue_null_clone_ptr_makes_null" ) {
-	const auto source_ptr = clone_ptr<clone_ptr_test_abstract_base>{};
-	auto       ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	const auto source_ptr = clone_ptr<example_cloner_abstract_base>{};
+	auto       ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = source_ptr;
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "assignment_from_rvalue_null_unique_ptr_makes_null" ) {
-	auto source_ptr = unique_ptr<clone_ptr_test_abstract_base>{};
-	auto ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	auto source_ptr = unique_ptr<example_cloner_abstract_base>{};
+	auto ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = std::move( source_ptr );
 	check_both_null( ptr, source_ptr );
 }
 
 TEST_CASE( "assignment_from_lvalue_null_uptr_makes_null" ) {
-	const auto source_ptr = unique_ptr<clone_ptr_test_abstract_base>{};
-	auto       ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	const auto source_ptr = unique_ptr<example_cloner_abstract_base>{};
+	auto       ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = source_ptr;
 	check_both_null( ptr, source_ptr );
 }
 
 
 TEST_CASE( "assignment_from_rvalue_clone_ptr_of_convertible_type_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1>();
+	auto               source_ptr = make_clone<example_cloner_concrete1>();
 	const auto * const raw_ptr    = source_ptr.get();
-	auto ptr = clone_ptr<clone_ptr_test_abstract_base>{};
+	auto ptr = clone_ptr<example_cloner_abstract_base>{};
 	ptr = std::move( source_ptr );
 
 	check_moved( ptr, raw_ptr );
@@ -379,27 +335,27 @@ TEST_CASE( "assignment_from_rvalue_clone_ptr_of_convertible_type_moves" ) {
 
 /// \todo Should separate this into two tests: move-assignment (ie from rvalue) and copy-assignment
 TEST_CASE( "assignment_to_null_from_rvalue_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	auto               source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	auto               ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = std::move( source_ptr );
 
 	check_moved( ptr, raw_ptr );
 }
 
 TEST_CASE( "assignment_to_null_from_lvalue_clones" ) {
-	const auto         source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	const auto         source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = clone_ptr<clone_ptr_test_abstract_base>{};
+	auto               ptr        = clone_ptr<example_cloner_abstract_base>{};
 	ptr = source_ptr;
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "assignment_to_nonnull_from_rvalue_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	auto               source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto               ptr        = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	ptr = std::move( source_ptr );
 	
 	check_moved( ptr, raw_ptr );
@@ -408,9 +364,9 @@ TEST_CASE( "assignment_to_nonnull_from_rvalue_moves" ) {
 }
 
 TEST_CASE( "assignment_to_nonnull_from_lvalue_clones" ) {
-	const auto         source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	const auto         source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto               ptr        = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	ptr = source_ptr;
 	
 	check_cloned_from( ptr, raw_ptr, source_ptr );
@@ -419,9 +375,9 @@ TEST_CASE( "assignment_to_nonnull_from_lvalue_clones" ) {
 }
 
 TEST_CASE( "assignment_to_nonnull_from_rvalue_unique_ptr_moves" ) {
-	auto               source_ptr = unique_ptr<clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	auto               source_ptr = unique_ptr<example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto               ptr        = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	ptr = std::move( source_ptr );
 
 	check_moved( ptr, raw_ptr );
@@ -430,9 +386,9 @@ TEST_CASE( "assignment_to_nonnull_from_rvalue_unique_ptr_moves" ) {
 }
 
 TEST_CASE( "assignment_to_nonnull_from_lvalue_unique_ptr_clones" ) {
-	const auto         source_ptr = unique_ptr<clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	const auto         source_ptr = unique_ptr<example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto               ptr        = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	ptr = source_ptr;
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
@@ -444,13 +400,24 @@ TEST_CASE( "assignment_to_nonnull_from_lvalue_unique_ptr_clones" ) {
 
 
 
+// TEST_SUITE(base_base)
+
+TEST_CASE( "base_base" ) {
+	const auto source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base_base>();
+	auto       ptr        = clone_ptr<example_cloner_abstract_base_base>{ source_ptr };
+}
+
+
+// TEST_SUITE_END()
+
+
 
 // TEST_SUITE(misc)
 
 TEST_CASE( "resets_to_non_null" ) {
-	auto               source_ptr = unique_ptr<clone_ptr_test_abstract_base>{ make_unique<clone_ptr_test_concrete1>() };
+	auto               source_ptr = unique_ptr<example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
 	const auto * const raw_ptr    = source_ptr.get();
-	auto               ptr        = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto               ptr        = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	ptr.reset( source_ptr.release() );
 	
 	check_moved( ptr, raw_ptr );
@@ -459,15 +426,15 @@ TEST_CASE( "resets_to_non_null" ) {
 }
 
 TEST_CASE( "resets_to_null" ) {
-	auto ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	auto ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	ptr.reset( nullptr );
 	REQUIRE( ! ptr                );
 	REQUIRE( ptr.get() == nullptr );
 }
 
 TEST_CASE( "swaps" ) {
-	auto ptr1 = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
-	auto ptr2 = make_clone<clone_ptr_test_concrete2, clone_ptr_test_abstract_base>();
+	auto ptr1 = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
+	auto ptr2 = make_clone<example_cloner_concrete2, example_cloner_abstract_base>();
 	REQUIRE( ptr1->method()      == CONCRETE1_METHOD_RESULT  );
 	REQUIRE( ptr2->method()      == CONCRETE2_METHOD_RESULT  );
 	ptr1.swap( ptr2 );
@@ -484,17 +451,17 @@ TEST_CASE( "swaps" ) {
 // TEST_SUITE(conversion_to_unique_ptr)
 
 TEST_CASE( "conversion_from_lvalue_clone_ptr_to_unique_ptr_clones" ) {
-	const auto         source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	const auto         source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = static_cast<unique_ptr<clone_ptr_test_abstract_base>>( source_ptr );
+	const auto         ptr        = static_cast<unique_ptr<example_cloner_abstract_base>>( source_ptr );
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }
 
 TEST_CASE( "conversion_from_rvalue_clone_ptr_to_unique_ptr_moves" ) {
-	auto               source_ptr = make_clone<clone_ptr_test_concrete1, clone_ptr_test_abstract_base>();
+	auto               source_ptr = make_clone<example_cloner_concrete1, example_cloner_abstract_base>();
 	const auto * const raw_ptr    = source_ptr.get();
-	const auto         ptr        = static_cast<unique_ptr<clone_ptr_test_abstract_base>>( std::move( source_ptr ) );
+	const auto         ptr        = static_cast<unique_ptr<example_cloner_abstract_base>>( std::move( source_ptr ) );
 
 	check_moved( ptr, raw_ptr );
 	}
@@ -506,8 +473,8 @@ TEST_CASE( "conversion_from_rvalue_clone_ptr_to_unique_ptr_moves" ) {
 // TEST_SUITE(can_clone_from_concrete)
 
 TEST_CASE( "can_clone_from_concrete" ) {
-	REQUIRE( clone_and_make_clone      ( clone_ptr_test_concrete1{} )->method() == CONCRETE1_METHOD_RESULT );
-	REQUIRE( clone_and_make_const_clone( clone_ptr_test_concrete1{} )->method() == CONCRETE1_METHOD_RESULT );
+	REQUIRE( clone_and_make_clone      ( example_cloner_concrete1{} )->method() == CONCRETE1_METHOD_RESULT );
+	REQUIRE( clone_and_make_const_clone( example_cloner_concrete1{} )->method() == CONCRETE1_METHOD_RESULT );
 }
 
 // TEST_SUITE_END()

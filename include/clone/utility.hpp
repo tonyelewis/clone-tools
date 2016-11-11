@@ -43,8 +43,8 @@ namespace clone_tools {
 	/// ~~~~~
 	template <typename T>
 	inline auto make_uptr_clone(const T &arg_clonee ///< The object to be cloned (via its copy-ctor) into a unique_ptr
-	                            ) -> decltype( detail::make_unique<T>( arg_clonee ) ) {
-		return detail::make_unique<T>( arg_clonee );
+	                            ) -> decltype( detail::make_unique_wrapper<T>( arg_clonee ) ) {
+		return detail::make_unique_wrapper<T>( arg_clonee );
 	}
 
 } // namespace clone_tools

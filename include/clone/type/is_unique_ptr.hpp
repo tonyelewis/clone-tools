@@ -53,6 +53,18 @@ namespace clone_tools {
 		~is_unique_ptr_after_decay() = delete;
 	};
 
+#ifdef __cpp_variable_templates
+
+	/// \brief Variable template for whether some type is a `std::unique_ptr<...>`
+	template <typename T>
+	static constexpr bool is_unique_ptr_v             = is_unique_ptr            <T>::value;
+
+	/// \brief Variable template for whether some type is a `std::unique_ptr<...>`
+	template <typename T>
+	static constexpr bool is_unique_ptr_after_decay_v = is_unique_ptr_after_decay<T>::value;
+
+#endif // __cpp_variable_templates
+
 } // namespace clone_tools
 
 #endif

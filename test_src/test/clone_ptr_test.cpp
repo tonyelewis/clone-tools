@@ -144,7 +144,15 @@ constexpr const int &test_constexpr_val_c = test_constexpr_val_a;
 
 static_assert(   clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_b ), "not_the_same_thing() should return true for different variables"                         );
 static_assert( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_a ), "not_the_same_thing() should return false for the same variable"                          );
-static_assert( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_c ), "not_the_same_thing() should return false for a variable and a reference to the variable" );
+
+// \todo Come GCC >= 5, use this static assertion instead of the following testcase:
+//
+// ~~~~~.cpp
+// static_assert( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_c ), "not_the_same_thing() should return false for a variable and a reference to the variable" );
+// ~~~~~
+TEST_CASE( "not_the_same_thing__returns_false_for_reference_to_same_thing" ) {
+	REQUIRE( ! clone_tools::detail::not_the_same_thing( test_constexpr_val_a, test_constexpr_val_c ) );
+}
 
 // TEST_SUITE(test_structures_test)
 

@@ -14,5 +14,5 @@ Supported compilers
 The library should work on any conformant C++11 / C++14 compiler. At present, the tests are built and run on [Travis-CI](https://travis-ci.org/tonyelewis/clone-tools "The clone-tools Travis-CI builds") under:
 
  * Linux, Clang 3.5.0 (with libc++)
- * Linux, GCC 4.8.4 (with libstdc++)
+ * Linux, GCC 4.9.4 (with libstdc++)
  * Mac, Apple LLVM version 6.0 (clang-600.0.54) (based on LLVM 3.5svn)

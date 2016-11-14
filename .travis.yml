@@ -49,16 +49,17 @@ install:
 
 addons:
   apt:
+    sources:
+    - llvm-toolchain-precise-3.6
+#     - kalakris-cmake
+#     - ubuntu-toolchain-r-test
     packages:
     - gcc-4.9
     - g++-4.9
 #     - clang-3.6
 #     - cmake
 #     - ninja-build
-#     sources:
-#     - kalakris-cmake
-#     - llvm-toolchain-precise-3.6
-#     - ubuntu-toolchain-r-test
+
 
 before_script:
   - mkdir build && cd build

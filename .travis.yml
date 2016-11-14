@@ -47,18 +47,18 @@ install:
   # - if [ "$BUILDTYPE" == "UBSAN"          ]; then export CMAKE_BUILD_TYPE="RELEASE"       ; export CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fsanitize=undefined                      "; fi
   # - if [ "$BUILDTYPE" == "ANALYZE"        ]; then export CMAKE_BUILD_TYPE="RELEASE"       ; export WRAPPER="scan_build-3.6 " ; fi else export WRAPPER=" "                         ; fi
 
-# addons:
-#   apt:
+addons:
+  apt:
+    packages:
+    - gcc-4.9
+    - g++-4.9
+#     - clang-3.6
+#     - cmake
+#     - ninja-build
 #     sources:
 #     - kalakris-cmake
 #     - llvm-toolchain-precise-3.6
 #     - ubuntu-toolchain-r-test
-#     packages:
-#     - clang-3.6
-#     - cmake
-#     - gcc-4.9
-#     - g++-4.9
-#     - ninja-build
 
 before_script:
   - mkdir build && cd build

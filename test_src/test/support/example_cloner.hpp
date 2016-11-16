@@ -73,7 +73,6 @@ namespace clone_tools {
 			}
 
 		public:
-			virtual ~example_cloner_concrete1() noexcept override = default;
 			virtual size_t method() const override final {
 				return CONCRETE1_METHOD_RESULT;
 			}
@@ -87,7 +86,6 @@ namespace clone_tools {
 			}
 
 		public:
-			virtual ~example_cloner_concrete2() noexcept override = default;
 			virtual size_t method() const override final {
 				return CONCRETE2_METHOD_RESULT;
 			}

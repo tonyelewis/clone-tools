@@ -30,7 +30,13 @@ namespace clone_tools {
 		private:
 			virtual std::unique_ptr<example_cloner_abstract_base> do_clone() const = 0;
 		public:
+			example_cloner_abstract_base_base() = default;
 			virtual ~example_cloner_abstract_base_base() noexcept = default;
+
+			example_cloner_abstract_base_base(const example_cloner_abstract_base_base &) = default;
+			example_cloner_abstract_base_base(example_cloner_abstract_base_base &&) = default;
+			example_cloner_abstract_base_base & operator=(const example_cloner_abstract_base_base &) = default;
+			example_cloner_abstract_base_base & operator=(example_cloner_abstract_base_base &&) = default;
 
 			std::unique_ptr<example_cloner_abstract_base> clone() const {
 				return check_uptr_clone_against_this( do_clone(), *this );
@@ -48,11 +54,10 @@ namespace clone_tools {
 
 		public:
 			example_cloner_abstract_base() = default;
-			example_cloner_abstract_base(const example_cloner_abstract_base &arg_base
-			                             ) : clone_ctr ( ++arg_base.clone_ctr ) {
+			example_cloner_abstract_base(const example_cloner_abstract_base &arg_base ///< TODOCUMENT
+			                             ) : example_cloner_abstract_base_base{                      },
+			                                 clone_ctr                        { ++arg_base.clone_ctr } {
 			}
-			
-			virtual ~example_cloner_abstract_base() noexcept = default;
 
 			virtual size_t method() const = 0;
 			size_t clone_count() const {

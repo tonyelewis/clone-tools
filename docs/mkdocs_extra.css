@@ -121,7 +121,7 @@ ul.wy-breadcrumbs {
 
 div[role="navigation"] > hr::before {
 	color            : grey;
-	content          : "Hat-tip: docs draw content and style from cppreference.com; please use and support that excellent site.";
+	content          : "Hat-tip: these docs draw content and style from cppreference.com; please use and support that excellent site.";
 	font-size        : 75%;
 	vertical-align   : super;
 }

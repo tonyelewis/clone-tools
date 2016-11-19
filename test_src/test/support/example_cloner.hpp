@@ -28,7 +28,6 @@ namespace clone_tools {
 
 		class example_cloner_abstract_base_base {
 		private:
-			// virtual void must_override_this() const = 0;
 			virtual std::unique_ptr<example_cloner_abstract_base> do_clone() const = 0;
 		public:
 			virtual ~example_cloner_abstract_base_base() noexcept = default;
@@ -46,10 +45,6 @@ namespace clone_tools {
 			///  * mutable so that it can be incremented in the const source of copy-constructs/clones
 			///  * atomic so that the const members are thread-safe
 			mutable std::atomic<size_t> clone_ctr { 0 };
-
-			// virtual void must_override_this() const override final {}
-
-			// virtual std::unique_ptr<example_cloner_abstract_base> do_clone() const = 0;
 
 		public:
 			example_cloner_abstract_base() = default;

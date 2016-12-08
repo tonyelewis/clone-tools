@@ -249,9 +249,9 @@ TEST_CASE( "ctor_from_rvalue_to_unique_ptr_moves" ) {
 }
 
 TEST_CASE( "ctor_from_lvalue_to_unique_ptr_to_const_clones" ) {
-	const auto         source_ptr  = unique_ptr<const example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
-	const auto * const raw_ptr     = source_ptr.get();
-	const auto         ptr         = clone_ptr<const example_cloner_abstract_base>{ source_ptr };
+	const auto         source_ptr = unique_ptr<const example_cloner_abstract_base>{ make_unique_wrapper<example_cloner_concrete1>() };
+	const auto * const raw_ptr    = source_ptr.get();
+	const auto         ptr        = clone_ptr<const example_cloner_abstract_base>{ source_ptr };
 
 	check_cloned_from( ptr, raw_ptr, source_ptr );
 }

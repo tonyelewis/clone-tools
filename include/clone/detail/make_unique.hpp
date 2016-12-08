@@ -14,21 +14,20 @@ namespace clone_tools {
 // doesn't appear to define such feature checks. Great.
 #if __cplusplus < 201401
 
-	/// \brief TODOCUMENT
+	/// \brief A standard `make_unique` for when compiling under C++11, which doesn't provide it
 	template <typename T, typename... Args>
-	std::unique_ptr<T> make_unique(Args&&... args ///< TODOCUMENT
+	std::unique_ptr<T> make_unique(Args&&... args ///< The arguments to forward to T's ctor
 	                               ) {
 		return std::unique_ptr<T>( new T( std::forward<Args>( args )... ) );
 	}
 
 #endif // __cplusplus >= 201401
 
-	// TD<int> defined;
 	namespace detail {
 
-		/// \brief TODOCUMENT
+		/// \brief Internal wrapper to call whichever `make_unique` is active
 		template <typename T, typename... Args>
-		auto make_unique_wrapper(Args&&... args ///< TODOCUMENT
+		auto make_unique_wrapper(Args&&... args ///< The arguments to be forwarded to the correct `make_unique`
 
 // It'd be much better to use __cpp_lib_make_unique here but libc++
 // doesn't appear to define such feature checks. Great.

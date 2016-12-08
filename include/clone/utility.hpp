@@ -13,7 +13,10 @@ namespace clone_tools {
 
 	namespace detail {
 
-		/// \brief TODOCUMENT
+		/// \brief Do nothing with the passed arguments
+		///
+		/// This is used to suppress compiler warnings about unused arguments
+		/// and is named after Boost's boost::ignore_unused
 		template <typename... Ts> inline void ignore_unused(const Ts &...) {}
 
 	} // namespace detail

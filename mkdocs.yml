@@ -5,8 +5,11 @@ extra_css: [mkdocs_extra.css]
 
 pages:
 - Home      : index.md
+- Reference :
+  - clone_ptr : reference/clone_ptr.md
+  - utility   : reference/utility/index.md
 - About     : about.md
-- clone_ptr : clone_ptr.md
+
 
 # markdown_extensions:
 #   - fenced_code
